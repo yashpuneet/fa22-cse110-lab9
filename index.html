@@ -5,6 +5,13 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "6c451da4249b4c12a28cb5abda36cbd5"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>            
   <title>Lab 9</title>
 
   <style>
@@ -69,21 +76,22 @@
     </form>
 
     <section id="error-btns">
-      <button>Console Log</button>
-      <button>Console Error</button>
-      <button>Console Count</button>
-      <button>Console Warn</button>
-      <button>Console Assert</button>
-      <button>Console Clear</button>
-      <button>Console Dir</button>
-      <button>Console dirxml</button>
-      <button>Console Group Start</button>
-      <button>Console Group End</button>
-      <button>Console Table</button>
-      <button>Start Timer</button>
-      <button>End Timer</button>
-      <button>Console Trace</button>
-      <button>Trigger a Global Error</button>
+      <button id="log">Console Log</button>
+      <button id="error">Console Error</button>
+      <button id="count">Console Count</button>
+      <button id="warn">Console Warn</button>
+      <button id="assert">Console Assert</button>
+      <button id="clear">Console Clear</button>
+      <button id="dir">Console Dir</button>
+      <button id="dirxml">Console dirxml</button>
+      <button id="group-start">Console Group Start</button>
+      <button id="group-end">Console Group End</button>
+      <button id="table">Console Table</button>
+      <button id="start-timer">Start Timer</button>
+      <button id="end-timer">End Timer</button>
+      <button id="trace">Console Trace</button>
+      <button id="global-error">Trigger a Global Error</button>
+      <button id="trycatch">Try/Catch/Finally + Throw Custom Error</button>
     </section>
   </main>
 
@@ -102,6 +110,142 @@
 
     // Start your code here
     // You may move this JS to another file if you wish
+    window.onerror = function (errMessage, errSource, lineNum, colNum, error) {
+      console.log(`Reporting client side error on line ${lineNum} with message ${errMessage}`);
+      return false;
+    };
+
+    /**
+     * This section of the code uses to trigger event listeners for console APIs buttons
+    **/
+
+    errorBtns.forEach( (btn) => {
+      btn.addEventListener("click", function handleBtnClick (event){
+        if(btn.id == "log"){
+          console.log("Console Log Demo");
+        }
+        else if(btn.id == "error"){
+          console.error("Console Error Demo");
+        }
+        else if(btn.id == "count"){
+          console.count("Count Button");
+        }
+        else if(btn.id == "warn"){
+          console.warn("Console Warn Button");
+        }
+        else if(btn.id == "assert"){
+          let number = 2;
+          let errorMsg = "The number does not equal 3";
+          console.assert(number == 3, {number, errorMsg});
+        }
+        else if(btn.id == "clear"){
+          console.clear();
+        }
+        else if(btn.id == "dir"){
+          console.dir(document.createElement("button"));
+        }
+        else if(btn.id == "dirxml"){
+          console.dirxml(btn);
+        }
+        else if(btn.id == "group-start"){
+          console.group("console.group");
+        }
+        else if(btn.id == "group-end"){
+          console.groupEnd("console.group");
+        }
+        else if(btn.id == "table"){
+          let cseClasses = [
+            {
+              name: 'Software Engineering',
+              num: 110,
+            },
+            {
+              name: 'Programming Languages: Principles and Paradigms',
+              num: 130,
+            },
+            {
+              name: 'Advanced Software Engineering',
+              num: 112,
+            }
+          ];
+          console.table(cseClasses);
+        }
+        else if(btn.id == "start-timer"){
+          console.time("Time Button");
+        }
+        else if(btn.id == "end-timer"){
+          console.timeEnd("Time Button");
+        }
+        else if(btn.id == "trace"){
+          const deep = () => { deeper(); };
+          const deeper = () => { deepest(); };
+          const deepest = () => { console.trace(); };
+          deep();
+        }
+        else if(btn.id = "global-error"){
+          alert(undefinedVariable);
+        }
+        else if(btn.id = "trycatch"){
+          trycatchtest();
+        }
+      });
+    });
+
+    /**
+     * This section of the code uses custom errors with try, catch, 
+     * finally and throw
+    **/
+
+    //Incomplete Shape Error Class
+    class IncompleteShapeError extends Error{
+      constructor(characteristic) 
+      {
+        super(`A valid shape requires ${characteristic} information`);
+        this.name = "IncompleteShapeError";
+      }
+    }
+
+    function trycatchtest()
+    {
+      let completeJSON = '{"shape": "square", "color": "orange"}';
+      //Simulate data corruption over the network
+      let incompleteJSON = '{"shape": "circle"}';
+
+      let shapeList = [completeJSON, incompleteJSON];
+
+      for(let index = 0; index < shapeList.length; index++)
+      {
+        let shapeName = "No Name Found";
+        let shapeColor = "No Color Found";
+
+        try
+        {
+          let parsedObject = JSON.parse(shapeList[index]);
+
+          if(!parsedObject.shape)
+          {
+            throw new IncompleteShapeError("Shape Name");
+          }
+          shapeName = parsedObject.shape;
+
+          if(!parsedObject.color)
+          {
+            throw new IncompleteShapeError("Shape Color");
+          }
+          shapeColor = parsedObject.color;
+
+          console.log("Successfully Parsed");
+        }
+        catch(error)
+        {
+          console.log(`Parsing Failed due to ${error.name} with message ${error.message}.`);
+        }
+        finally
+        {
+          alert(`The shape is a ${shapeName} coloured ${shapeColor}.`)
+        }
+      }
+    }
   </script>
 </body>
 
